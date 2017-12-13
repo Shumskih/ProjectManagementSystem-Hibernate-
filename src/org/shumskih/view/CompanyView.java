@@ -13,6 +13,7 @@ import org.shumskih.model.Project;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashSet;
 import java.util.Set;
 
 public class CompanyView {
@@ -26,6 +27,8 @@ public class CompanyView {
     private String userInput;
 
     public void createCompany() {
+        Set<Project> projects = new HashSet<>();
+
         boolean exit = false;
 
         try {
@@ -38,17 +41,11 @@ public class CompanyView {
                     exit = true;
                 } else {
                     companyName = userInput;
-
-                    Company company = new Company(companyName);
-                    companyController.save(company);
                     break;
                 }
             }
 
             while (!exit) {
-                System.out.println("Add project to company? y = yes or n = no:");
-                userInput = br.readLine().trim().toLowerCase();
-
                 while (!userInput.equals("y") && !userInput.equals("n")) {
                     System.out.println("Add project to company? Enter y = yes or n = no:");
                     userInput = br.readLine().trim().toLowerCase();
@@ -72,23 +69,23 @@ public class CompanyView {
                     SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
                     Session session = sessionFactory.openSession();
                     Transaction transaction = null;
-                    Project project = null;
-                    Set<Project> projects = null;
+                    Project project;
 
                     try {
                         transaction = session.beginTransaction();
                         project = (Project) session.get(Project.class, Integer.parseInt(userInput));
 
-                        projects.add(project);
-
                         transaction.commit();
+
+                        projects.add(project);
                         System.out.println(project);
+
+                        session.close();
                     } catch (Exception e) {
                         transaction.rollback();
-                        e.printStackTrace();
-                    } finally {
                         session.close();
                         HibernateUtil.closeSessionFactory(sessionFactory);
+                        e.printStackTrace();
                     }
 
                     System.out.println("Add another one project? y = yes or n = no:");
@@ -96,6 +93,8 @@ public class CompanyView {
 
                     if (userInput.equals("n")) {
                         Company company = new Company(companyName, projects);
+                        companyController.save(company);
+                        projects.clear();
                         Decorations.returnToMainMenu();
                         exit = true;
                     }
@@ -158,11 +157,12 @@ public class CompanyView {
 
         String userInputCompanyName;
 
-        Company company;
-        Set<Project> projects = null;
-
+        Company company = null;
         Integer id = null;
         String name = null;
+
+        Set<Project> projects = new HashSet<>();
+        Set<Project> modifiedProjects = new HashSet<>();
 
         try {
             while (!exit) {
@@ -192,29 +192,23 @@ public class CompanyView {
                     System.out.println("Enter new company name:");
                     userInputCompanyName = br.readLine().trim();
 
-                    company = new Company(userInputCompanyName);
+                    company = new Company(id, userInputCompanyName);
                     companyController.update(company);
                 }
             }
 
-            while (!exit) {
-                do {
-                    System.out.println("Change projects? y = yes, n = no:");
-                    userInput = br.readLine().trim().toLowerCase();
-                } while (!userInput.equals("y") & !userInput.equals("n"));
+            do {
+                System.out.println("Change projects? y = yes, n = no:");
+                userInput = br.readLine().trim().toLowerCase();
+                System.out.println();
+            } while (!userInput.equals("y") & !userInput.equals("n"));
 
-                if (userInput.equals("n")) {
-                    exit = true;
-                    Decorations.returnToMainMenu();
-                } else {
-                    System.out.println("There is list of projects company has:");
-                    company = companyController.getById(id);
-
-                    projects = company.getProjects();
-                    for(Project project : projects) {
-                        System.out.println(project);
-                    }
-                }
+            if (userInput.equals("n")) {
+                exit = true;
+                Decorations.returnToMainMenu();
+            } else {
+                System.out.println("There is list of projects company has:");
+                company = companyController.getById(id);
             }
 
             while (!exit) {
@@ -233,7 +227,19 @@ public class CompanyView {
                         userInput = br.readLine().trim().toLowerCase();
                         System.out.println();
 
-                        projectController.delete(Integer.parseInt(userInput));
+                        projects = company.getProjects();
+                        for(Project project : projects) {
+                            Integer projectId = project.getId();
+                            if(projectId != Integer.parseInt(userInput)) {
+                                modifiedProjects.add(project);
+                            }
+                        }
+
+                        company = new Company(id, name, modifiedProjects);
+                        companyController.update(company);
+                        projects.clear();
+                        modifiedProjects.clear();
+
                         Decorations.returnToMainMenu();
                         exit = true;
                     } else {
@@ -245,11 +251,16 @@ public class CompanyView {
                         userInput = br.readLine().trim().toLowerCase();
                         System.out.println();
 
-                        Project project = projectController.getById(Integer.parseInt(userInput));
-                        projects.add(project);
+                        Project addNewProject = projectController.getById(Integer.parseInt(userInput));
+                        modifiedProjects.add(addNewProject);
 
-                        Company updateCompany = new Company(id, name, projects);
+                        projects = company.getProjects();
+                        modifiedProjects.addAll(projects);
+
+                        Company updateCompany = new Company(id, name, modifiedProjects);
                         companyController.update(updateCompany);
+                        projects.clear();
+                        modifiedProjects.clear();
 
                         Decorations.returnToMainMenu();
                         exit = true;

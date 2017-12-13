@@ -6,8 +6,10 @@ import org.hibernate.Transaction;
 import org.shumskih.dao.GenericDAO;
 import org.shumskih.dao.HibernateUtil;
 import org.shumskih.model.Company;
+import org.shumskih.model.Project;
 
 import java.util.List;
+import java.util.Set;
 
 public class HibernateCompanyDAOImpl implements GenericDAO<Company, Long> {
     @Override
@@ -88,22 +90,23 @@ public class HibernateCompanyDAOImpl implements GenericDAO<Company, Long> {
         Transaction transaction = null;
         Integer companyId = company.getId();
         String companyName = company.getName();
+        Set<Project> projects = company.getProjects();
 
         try {
             transaction = session.beginTransaction();
             company = (Company) session.get(Company.class, companyId);
 
            company.setName(companyName);
+           company.setProjects(projects);
 
             session.update(company);
             transaction.commit();
+            session.close();
         } catch (Exception e) {
             transaction.rollback();
             session.close();
             HibernateUtil.closeSessionFactory(sessionFactory);
             e.printStackTrace();
-        } finally {
-            session.close();
         }
     }
 

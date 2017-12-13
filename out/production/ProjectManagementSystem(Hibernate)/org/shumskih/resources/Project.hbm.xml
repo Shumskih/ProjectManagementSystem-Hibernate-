@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="org.shumskih.model.Project" table="projects">
+        <meta attribute="class-description">
+            This class contains developer's details.
+        </meta>
+        <id name="id" type="int" column="id">
+            <generator class="native"/>
+        </id>
+        <property name="name" column="name" type="string"/>
+        <property name="version" column="version" type="string"/>
+
+        <set name="developers" table="projects_developers" lazy="false">
+            <key column="project_id" not-null="true"/>
+            <many-to-many column="developer_id" class="org.shumskih.model.Developer" lazy="false"/>
+        </set>
+        <set name="companies" table="companies_projects" lazy="false">
+            <key column="project_id" not-null="true"/>
+            <many-to-many column="company_id" class="org.shumskih.model.Company" lazy="false"/>
+        </set>
+        <set name="customers" table="customers_projects" lazy="false">
+            <key column="project_id" not-null="true"/>
+            <many-to-many column="customer_id" class="org.shumskih.model.Customer" lazy="false"/>
+        </set>
+    </class>
+</hibernate-mapping>

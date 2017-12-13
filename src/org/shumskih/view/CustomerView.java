@@ -13,6 +13,7 @@ import org.shumskih.model.Project;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashSet;
 import java.util.Set;
 
 public class CustomerView {
@@ -27,6 +28,8 @@ public class CustomerView {
     private String userInput;
 
     public void createCustomer() {
+        Set<Project> projects = new HashSet<>();
+
         boolean exit = false;
 
         try {
@@ -39,17 +42,11 @@ public class CustomerView {
                     exit = true;
                 } else {
                     customerName = userInput;
-
-                    Customer customer = new Customer(customerName);
-                    customerController.save(customer);
                     break;
                 }
             }
 
             while (!exit) {
-                System.out.println("Add project to customer? y = yes, n = no:");
-                userInput = br.readLine().trim().toLowerCase();
-
                 while (!userInput.equals("y") && !userInput.equals("n")) {
                     System.out.println("Add project to customer? Enter y = yes or n = no:");
                     userInput = br.readLine().trim().toLowerCase();
@@ -73,7 +70,6 @@ public class CustomerView {
                     Session session = sessionFactory.openSession();
                     Transaction transaction = null;
                     Project project = null;
-                    Set<Project> projects = null;
 
                     try {
                         transaction = session.beginTransaction();
@@ -83,12 +79,12 @@ public class CustomerView {
 
                         transaction.commit();
                         System.out.println(project);
+                        session.close();
                     } catch (Exception e) {
                         transaction.rollback();
-                        e.printStackTrace();
-                    } finally {
                         session.close();
                         HibernateUtil.closeSessionFactory(sessionFactory);
+                        e.printStackTrace();
                     }
 
                     System.out.println("Add another project? y = yes, n = no:");
@@ -96,6 +92,8 @@ public class CustomerView {
 
                     if (userInput.equals("n")) {
                         Customer customer = new Customer(customerName, projects);
+                        customerController.save(customer);
+                        projects.clear();
                         Decorations.returnToMainMenu();
                         exit = true;
                     }
@@ -157,11 +155,12 @@ public class CustomerView {
 
         String userInputCustomerName;
 
-        Customer customer;
-        Set<Project> projects = null;
-
+        Customer customer = null;
         Integer id = null;
         String name = null;
+
+        Set<Project> projects = new HashSet<>();
+        Set<Project> modifiedProjects = new HashSet<>();
 
         try {
             while (!exit) {
@@ -189,11 +188,10 @@ public class CustomerView {
                     System.out.println("Enter new customer name:");
                     userInputCustomerName = br.readLine().trim();
 
-                    customer = new Customer(userInputCustomerName);
+                    customer = new Customer(id, userInputCustomerName);
                     customerController.update(customer);
                 }
             }
-
 
             do {
                 System.out.println("Change project? y = yes, n = no:");
@@ -207,11 +205,6 @@ public class CustomerView {
             } else {
                 System.out.println("There is list of projects customer has:");
                 customer = customerController.getById(id);
-
-                projects = customer.getProjects();
-                for(Project project : projects) {
-                    System.out.println(project);
-                }
             }
 
             while (!exit) {
@@ -230,7 +223,19 @@ public class CustomerView {
                         userInput = br.readLine().trim().toLowerCase();
                         System.out.println();
 
-                        customerController.delete(Integer.parseInt(userInput));
+                        projects = customer.getProjects();
+                        for(Project project : projects) {
+                            Integer projectId = project.getId();
+                            if(projectId != Integer.parseInt(userInput)) {
+                                modifiedProjects.add(project);
+                            }
+                        }
+
+                        customer = new Customer(id, name, modifiedProjects);
+                        customerController.update(customer);
+                        projects.clear();
+                        modifiedProjects.clear();
+
                         Decorations.returnToMainMenu();
                         exit = true;
                     } else {
@@ -242,11 +247,16 @@ public class CustomerView {
                         userInput = br.readLine().trim().toLowerCase();
                         System.out.println();
 
-                        Project project = projectController.getById(Integer.parseInt(userInput));
-                        projects.add(project);
+                        Project addNewProject = projectController.getById(Integer.parseInt(userInput));
+                        modifiedProjects.add(addNewProject);
 
-                        Customer updateCustomer = new Customer(id, name, projects);
+                        projects = customer.getProjects();
+                        modifiedProjects.addAll(projects);
+
+                        Customer updateCustomer = new Customer(id, name, modifiedProjects);
                         customerController.update(updateCustomer);
+                        projects.clear();
+                        modifiedProjects.clear();
 
                         Decorations.returnToMainMenu();
                         exit = true;

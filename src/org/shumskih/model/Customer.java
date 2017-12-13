@@ -16,6 +16,11 @@ public class Customer {
         this.name = name;
     }
 
+    public Customer(Integer id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
     public Customer(String name, Set<Project> projects) {
         this.name = name;
         this.projects = projects;

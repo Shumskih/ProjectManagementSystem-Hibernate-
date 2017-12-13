@@ -123,19 +123,15 @@ public class DeveloperView {
 
                         transaction.commit();
                         skills.add(skill);
-
                         System.out.println(skill);
+
+                        session.close();
                     } catch (Exception e) {
                         transaction.rollback();
-                        e.printStackTrace();
-                    } finally {
                         session.close();
                         HibernateUtil.closeSessionFactory(sessionFactory);
+                        e.printStackTrace();
                     }
-
-
-
-
 
                     System.out.println("Add another one skill? y = yes, n = no:");
                     userInput = br.readLine().trim().toLowerCase();
@@ -183,15 +179,13 @@ public class DeveloperView {
 
                         transaction.commit();
                         System.out.println(project);
+                        session.close();
                     } catch (Exception e) {
                         transaction.rollback();
-                        e.printStackTrace();
-                    } finally {
                         session.close();
                         HibernateUtil.closeSessionFactory(sessionFactory);
+                        e.printStackTrace();
                     }
-
-
 
 
                     System.out.println("Add another one project? y = yes, n = no:");
@@ -200,6 +194,8 @@ public class DeveloperView {
                     if (userInput.equals("n")) {
                         Developer developer = new Developer(developerName, developerSpecialization, developerExperience, developerSalary, skills, projects);
                         developerController.save(developer);
+                        skills.clear();
+                        projects.clear();
                         Decorations.returnToMainMenu();
                         exit = true;
                     }
@@ -266,7 +262,9 @@ public class DeveloperView {
         Integer experience = null;
         Integer salary = null;
         Set<Skill> skills = new LinkedHashSet<>();
+        Set<Skill> modifiedSkills = new LinkedHashSet<>();
         Set<Project> projects = new LinkedHashSet<>();
+        Set<Project> modifiedProjects = new LinkedHashSet<>();
 
         Developer developer;
 
@@ -329,7 +327,7 @@ public class DeveloperView {
                                 } else {
                                     userInputDevName = userInput;
 
-                                    developer = new Developer(userInputDevName, specialization, experience, salary, skills, projects);
+                                    developer = new Developer(devId, userInputDevName, specialization, experience, salary, skills, projects);
                                     developerController.update(developer);
                                     break;
                                 }
@@ -380,11 +378,6 @@ public class DeveloperView {
                                 System.out.println("--------------------------------------");
                                 developer = developerController.getById(id);
 
-                                skills = developer.getSkills();
-                                for(Skill skill : skills) {
-                                    System.out.println(skill);
-                                }
-
                                 while (!exit) {
                                     System.out.println("Delete skill or insert new? d = delete, i = insert new:");
                                     userInput = br.readLine().trim().toLowerCase();
@@ -401,7 +394,19 @@ public class DeveloperView {
                                             userInput = br.readLine().trim().toLowerCase();
                                             System.out.println();
 
-                                            skillController.delete(Integer.parseInt(userInput));
+                                            for(Skill skill : skills) {
+                                                Integer skillId = skill.getId();
+                                                if(skillId != Integer.parseInt(userInput)) {
+                                                    modifiedSkills.add(skill);
+                                                }
+                                            }
+
+                                            developer = new Developer(devId, name, specialization, experience, salary, modifiedSkills, projects);
+                                            developerController.update(developer);
+                                            projects.clear();
+                                            skills.clear();
+                                            modifiedProjects.clear();
+
                                             Decorations.returnToMainMenu();
                                             exit = true;
                                         } else {
@@ -413,11 +418,16 @@ public class DeveloperView {
                                             userInput = br.readLine().trim().toLowerCase();
                                             System.out.println();
 
-                                            Skill skill = skillController.getById(Integer.parseInt(userInput));
-                                            skills.add(skill);
+                                            Skill addNewSkill = skillController.getById(Integer.parseInt(userInput));
+                                            modifiedSkills.add(addNewSkill);
 
-                                            Developer updateDeveloper = new Developer(devId, name, specialization, experience, salary, skills, projects);
+                                            skills = developer.getSkills();
+                                            modifiedSkills.addAll(skills);
+
+                                            Developer updateDeveloper = new Developer(devId, name, specialization, experience, salary, modifiedSkills, projects);
                                             developerController.update(updateDeveloper);
+                                            skills.clear();
+                                            modifiedSkills.clear();
 
                                             Decorations.returnToMainMenu();
                                             exit = true;
@@ -428,11 +438,6 @@ public class DeveloperView {
                                 System.out.println("There is list of projects developer has:");
                                 System.out.println("--------------------------------------");
                                 developer = developerController.getById(id);
-
-                                projects = developer.getProjects();
-                                for(Project project : projects) {
-                                    System.out.println(project);
-                                }
 
                                 while (!exit) {
                                     System.out.println("Delete project or insert new? d = delete, i = insert new:");
@@ -450,7 +455,19 @@ public class DeveloperView {
                                             userInput = br.readLine().trim().toLowerCase();
                                             System.out.println();
 
-                                            projectController.delete(Integer.parseInt(userInput));
+                                            for(Project project : projects) {
+                                                Integer projectId = project.getId();
+                                                if(projectId != Integer.parseInt(userInput)) {
+                                                    modifiedProjects.add(project);
+                                                }
+                                            }
+
+                                            developer = new Developer(devId, name, specialization, experience, salary, skills, modifiedProjects);
+                                            developerController.update(developer);
+                                            skills.clear();
+                                            projects.clear();
+                                            modifiedProjects.clear();
+
                                             Decorations.returnToMainMenu();
                                             exit = true;
                                         } else {
@@ -462,11 +479,15 @@ public class DeveloperView {
                                             userInput = br.readLine().trim().toLowerCase();
                                             System.out.println();
 
-                                            Project project = projectController.getById(Integer.parseInt(userInput));
-                                            projects.add(project);
+                                            Project addNewProject = projectController.getById(Integer.parseInt(userInput));
+                                            modifiedProjects.add(addNewProject);
+                                            modifiedProjects.addAll(projects);
 
-                                            Developer updateDeveloper = new Developer(devId, name, specialization, experience, salary, skills, projects);
+                                            Developer updateDeveloper = new Developer(devId, name, specialization, experience, salary, skills, modifiedProjects);
                                             developerController.update(updateDeveloper);
+                                            skills.clear();
+                                            projects.clear();
+                                            modifiedProjects.clear();
 
                                             Decorations.returnToMainMenu();
                                             exit = true;

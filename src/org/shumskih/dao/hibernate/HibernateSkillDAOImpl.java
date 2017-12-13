@@ -69,13 +69,12 @@ public class HibernateSkillDAOImpl implements GenericDAO<Skill, Long> {
             for (Skill skill : skills) {
                 System.out.print(skill);
             }
+            session.close();
         } catch (Exception e) {
             transaction.rollback();
             session.close();
             HibernateUtil.closeSessionFactory(sessionFactory);
             e.printStackTrace();
-        } finally {
-            session.close();
         }
     }
 

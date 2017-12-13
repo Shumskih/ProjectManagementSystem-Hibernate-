@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="org.shumskih.model.Developer" table="developers">
+        <meta attribute="class-description">
+            This class contains developer's details.
+        </meta>
+        <id name="id" type="int" column="id">
+            <generator class="native"/>
+        </id>
+        <property name="name" column="name" type="string"/>
+        <property name="specialization" column="specialization" type="string"/>
+        <property name="experience" column="experience" type="int"/>
+        <property name="salary" column="salary" type="int"/>
+
+        <set name="projects" table="projects_developers" lazy="false">
+            <key column="developer_id" not-null="true"/>
+            <many-to-many column="project_id" class="org.shumskih.model.Project" lazy="false"/>
+        </set>
+        <set name="skills" table="developers_skills" lazy="false">
+            <key column="developer_id" not-null="true"/>
+            <many-to-many column="skill_id" class="org.shumskih.model.Skill" lazy="false"/>
+        </set>
+    </class>
+</hibernate-mapping>
