@@ -1,11 +1,20 @@
 package org.shumskih.model;
 
+import javax.persistence.*;
 import java.util.Set;
 
+@Entity
+@Table(name="skills")
 public class Skill {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Integer id;
+
+    @Column(name="name")
     private String name;
 
+    @ManyToMany(mappedBy = "skills", fetch = FetchType.EAGER)
     private Set<Developer> developers;
 
     public Skill() {

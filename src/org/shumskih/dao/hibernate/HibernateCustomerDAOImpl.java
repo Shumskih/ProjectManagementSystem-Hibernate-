@@ -12,9 +12,10 @@ import java.util.List;
 import java.util.Set;
 
 public class HibernateCustomerDAOImpl implements GenericDAO<Customer, Long> {
+    private SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+
     @Override
     public void save(Customer customer) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
 
@@ -23,20 +24,18 @@ public class HibernateCustomerDAOImpl implements GenericDAO<Customer, Long> {
 
             session.save(customer);
             transaction.commit();
+            session.close();
         } catch (Exception e) {
             transaction.rollback();
             session.close();
             HibernateUtil.closeSessionFactory(sessionFactory);
             sessionFactory = null;
             e.printStackTrace();
-        } finally {
-            session.close();
         }
     }
 
     @Override
     public Customer getById(int id) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
         Customer customer = null;
@@ -47,23 +46,22 @@ public class HibernateCustomerDAOImpl implements GenericDAO<Customer, Long> {
             System.out.println(customer);
 
             transaction.commit();
+            session.close();
         } catch (Exception e) {
             transaction.rollback();
             session.close();
             HibernateUtil.closeSessionFactory(sessionFactory);
             sessionFactory = null;
             e.printStackTrace();
-        } finally {
-            session.close();
         }
         return customer;
     }
 
     @Override
     public void getAll() {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
+
         List<Customer> customers;
 
         try {
@@ -72,24 +70,24 @@ public class HibernateCustomerDAOImpl implements GenericDAO<Customer, Long> {
             for (Customer customer : customers) {
                 System.out.print(customer);
             }
+            session.close();
         } catch (Exception e) {
             transaction.rollback();
             session.close();
             HibernateUtil.closeSessionFactory(sessionFactory);
             sessionFactory = null;
             e.printStackTrace();
-        } finally {
-            session.close();
         }
     }
 
     @Override
     public void update(Customer customer) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
+
         Integer customerId = customer.getId();
         String customerName = customer.getName();
+
         Set<Project> projects = customer.getProjects();
 
         try {
@@ -113,7 +111,6 @@ public class HibernateCustomerDAOImpl implements GenericDAO<Customer, Long> {
 
     @Override
     public void delete(int id) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
 
@@ -122,14 +119,13 @@ public class HibernateCustomerDAOImpl implements GenericDAO<Customer, Long> {
             Customer customer = (Customer) session.get(Customer.class, id);
             session.delete(customer);
             transaction.commit();
+            session.close();
         } catch (Exception e) {
             transaction.rollback();
             session.close();
             HibernateUtil.closeSessionFactory(sessionFactory);
             sessionFactory = null;
             e.printStackTrace();
-        } finally {
-            session.close();
         }
     }
 }

@@ -1,16 +1,31 @@
 package org.shumskih.model;
 
+import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
+@Entity
+@Table(name="projects")
 public class Project {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Integer id;
+
+    @Column(name="name")
     private String name;
+
+    @Column(name="version")
     private String version;
 
-    private Set<Developer> developers  = new HashSet<>();;
-    private Set<Customer> customers = new HashSet<>();;
-    private Set<Company> companies = new HashSet<>();;
+    @ManyToMany(mappedBy = "projects", fetch = FetchType.EAGER)
+    private Set<Developer> developers  = new HashSet<>();
+
+    @ManyToMany(mappedBy = "projects", fetch = FetchType.EAGER)
+    private Set<Customer> customers = new HashSet<>();
+
+    @ManyToMany(mappedBy = "projects", fetch = FetchType.EAGER)
+    private Set<Company> companies = new HashSet<>();
 
     public Project() {
 

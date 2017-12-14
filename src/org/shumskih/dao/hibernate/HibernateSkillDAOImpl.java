@@ -10,9 +10,10 @@ import org.shumskih.model.Skill;
 import java.util.List;
 
 public class HibernateSkillDAOImpl implements GenericDAO<Skill, Long> {
+    private SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+
     @Override
     public void save(Skill skill) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
 
@@ -21,19 +22,17 @@ public class HibernateSkillDAOImpl implements GenericDAO<Skill, Long> {
 
            session.save(skill);
            transaction.commit();
+            session.close();
         } catch (Exception e) {
             transaction.rollback();
             session.close();
             HibernateUtil.closeSessionFactory(sessionFactory);
             e.printStackTrace();
-        } finally {
-            session.close();
         }
     }
 
     @Override
     public Skill getById(int id) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
         Skill skill = null;
@@ -44,23 +43,22 @@ public class HibernateSkillDAOImpl implements GenericDAO<Skill, Long> {
             System.out.println(skill);
 
             transaction.commit();
+            session.close();
         } catch (Exception e) {
             transaction.rollback();
             session.close();
             HibernateUtil.closeSessionFactory(sessionFactory);
             sessionFactory = null;
             e.printStackTrace();
-        } finally {
-            session.close();
         }
         return skill;
     }
 
     @Override
     public void getAll() {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
+
         List<Skill> skills;
 
         try {
@@ -80,7 +78,6 @@ public class HibernateSkillDAOImpl implements GenericDAO<Skill, Long> {
 
     @Override
     public void update(Skill skill) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
         Integer skillId = skill.getId();
@@ -94,19 +91,17 @@ public class HibernateSkillDAOImpl implements GenericDAO<Skill, Long> {
 
             session.update(skill);
             transaction.commit();
+            session.close();
         } catch (Exception e) {
             transaction.rollback();
             session.close();
             HibernateUtil.closeSessionFactory(sessionFactory);
             e.printStackTrace();
-        } finally {
-            session.close();
         }
     }
 
     @Override
     public void delete(int id) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
 
@@ -115,13 +110,12 @@ public class HibernateSkillDAOImpl implements GenericDAO<Skill, Long> {
             Skill skill = (Skill) session.get(Skill.class, id);
             session.delete(skill);
             transaction.commit();
+            session.close();
         } catch (Exception e) {
             transaction.rollback();
             session.close();
             HibernateUtil.closeSessionFactory(sessionFactory);
             e.printStackTrace();
-        } finally {
-            session.close();
         }
     }
 }

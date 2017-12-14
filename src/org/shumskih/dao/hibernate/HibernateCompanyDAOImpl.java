@@ -12,9 +12,10 @@ import java.util.List;
 import java.util.Set;
 
 public class HibernateCompanyDAOImpl implements GenericDAO<Company, Long> {
+    private SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+
     @Override
     public void save(Company company) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
 
@@ -23,45 +24,41 @@ public class HibernateCompanyDAOImpl implements GenericDAO<Company, Long> {
 
             session.save(company);
             transaction.commit();
+            session.close();
         } catch (Exception e) {
             transaction.rollback();
             session.close();
             HibernateUtil.closeSessionFactory(sessionFactory);
             sessionFactory = null;
             e.printStackTrace();
-        } finally {
-            session.close();
         }
     }
 
     @Override
     public Company getById(int id) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
         Company company = null;
 
         try {
             transaction = session.beginTransaction();
-            company = (Company) session.get(Company.class, id);
+            company = session.get(Company.class, id);
             System.out.println(company);
 
             transaction.commit();
+            session.close();
         } catch (Exception e) {
             transaction.rollback();
             session.close();
             HibernateUtil.closeSessionFactory(sessionFactory);
             sessionFactory = null;
             e.printStackTrace();
-        } finally {
-            session.close();
         }
         return company;
     }
 
     @Override
     public void getAll() {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
         List<Company> companies;
@@ -72,29 +69,29 @@ public class HibernateCompanyDAOImpl implements GenericDAO<Company, Long> {
             for (Company company : companies) {
                 System.out.print(company);
             }
+            session.close();
         } catch (Exception e) {
             transaction.rollback();
             session.close();
             HibernateUtil.closeSessionFactory(sessionFactory);
             sessionFactory = null;
             e.printStackTrace();
-        } finally {
-            session.close();
         }
     }
 
     @Override
     public void update(Company company) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
+
         Integer companyId = company.getId();
         String companyName = company.getName();
+
         Set<Project> projects = company.getProjects();
 
         try {
             transaction = session.beginTransaction();
-            company = (Company) session.get(Company.class, companyId);
+            company = session.get(Company.class, companyId);
 
            company.setName(companyName);
            company.setProjects(projects);
@@ -112,23 +109,21 @@ public class HibernateCompanyDAOImpl implements GenericDAO<Company, Long> {
 
     @Override
     public void delete(int id) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
 
         try {
             transaction = session.beginTransaction();
-            Company company = (Company) session.get(Company.class, id);
+            Company company = session.get(Company.class, id);
             session.delete(company);
             transaction.commit();
+            session.close();
         } catch (Exception e) {
             transaction.rollback();
             session.close();
             HibernateUtil.closeSessionFactory(sessionFactory);
             sessionFactory = null;
             e.printStackTrace();
-        } finally {
-            session.close();
         }
     }
 }

@@ -1,17 +1,40 @@
 package org.shumskih.model;
 
+import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
+@Entity
+@Table(name="developers")
 public class Developer {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Integer id;
+
+    @Column(name="name")
     private String name;
+
+    @Column(name="specialization")
     private String specialization;
+
+    @Column(name="experience")
     private Integer experience;
+
+    @Column(name="salary")
     private Integer salary;
 
-    private Set<Skill> skills = new HashSet<>();
-    private Set<Project> projects = new HashSet<>();
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name="developers_skills",
+            joinColumns = {@JoinColumn(name="developer_id", nullable = false)},
+            inverseJoinColumns = {@JoinColumn(name="skill_id", nullable = false)})
+    private Set<Skill> skills;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name="projects_developers",
+            joinColumns = {@JoinColumn(name="developer_id", nullable = false)},
+            inverseJoinColumns = {@JoinColumn(name="project_id", nullable = false)})
+    private Set<Project> projects;
 
     public Developer() {
 

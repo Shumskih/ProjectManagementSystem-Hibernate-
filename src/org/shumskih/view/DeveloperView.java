@@ -119,7 +119,7 @@ public class DeveloperView {
 
                     try {
                         transaction = session.beginTransaction();
-                        skill = (Skill) session.get(Skill.class, Integer.parseInt(userInput));
+                        skill = session.get(Skill.class, Integer.parseInt(userInput));
 
                         transaction.commit();
                         skills.add(skill);

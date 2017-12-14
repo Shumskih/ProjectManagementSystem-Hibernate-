@@ -10,9 +10,10 @@ import org.shumskih.model.Project;
 import java.util.List;
 
 public class HibernateProjectDAOImpl implements GenericDAO<Project, Long> {
+    private SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+
     @Override
     public void save(Project project) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
 
@@ -21,19 +22,17 @@ public class HibernateProjectDAOImpl implements GenericDAO<Project, Long> {
 
             session.save(project);
             transaction.commit();
+            session.close();
         } catch (Exception e) {
             transaction.rollback();
             session.close();
             HibernateUtil.closeSessionFactory(sessionFactory);
             e.printStackTrace();
-        } finally {
-            session.close();
         }
     }
 
     @Override
     public Project getById(int id) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
         Project project = null;
@@ -44,22 +43,21 @@ public class HibernateProjectDAOImpl implements GenericDAO<Project, Long> {
             System.out.println(project);
 
             transaction.commit();
+            session.close();
         } catch (Exception e) {
             transaction.rollback();
             session.close();
             HibernateUtil.closeSessionFactory(sessionFactory);
             e.printStackTrace();
-        } finally {
-            session.close();
         }
         return project;
     }
 
     @Override
     public void getAll() {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
+
         List<Project> projects;
 
         try {
@@ -68,19 +66,17 @@ public class HibernateProjectDAOImpl implements GenericDAO<Project, Long> {
             for (Project project : projects) {
                 System.out.print(project);
             }
+            session.close();
         } catch (Exception e) {
             transaction.rollback();
             session.close();
             HibernateUtil.closeSessionFactory(sessionFactory);
             e.printStackTrace();
-        } finally {
-            session.close();
         }
     }
 
     @Override
     public void update(Project project) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
         Integer projectId = project.getId();
@@ -96,19 +92,17 @@ public class HibernateProjectDAOImpl implements GenericDAO<Project, Long> {
 
             session.update(project);
             transaction.commit();
+            session.close();
         } catch (Exception e) {
             transaction.rollback();
             session.close();
             HibernateUtil.closeSessionFactory(sessionFactory);
             e.printStackTrace();
-        } finally {
-            session.close();
         }
     }
 
     @Override
     public void delete(int id) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
 
@@ -117,13 +111,12 @@ public class HibernateProjectDAOImpl implements GenericDAO<Project, Long> {
             Project project = (Project) session.get(Project.class, id);
             session.delete(project);
             transaction.commit();
+            session.close();
         } catch (Exception e) {
             transaction.rollback();
             session.close();
             HibernateUtil.closeSessionFactory(sessionFactory);
             e.printStackTrace();
-        } finally {
-            session.close();
         }
     }
 }

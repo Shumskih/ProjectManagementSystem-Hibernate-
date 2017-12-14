@@ -13,9 +13,10 @@ import java.util.List;
 import java.util.Set;
 
 public class HibernateDeveloperDAOImpl implements GenericDAO<Developer, Long> {
+    private SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+
     @Override
     public void save(Developer developer) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
 
@@ -24,19 +25,17 @@ public class HibernateDeveloperDAOImpl implements GenericDAO<Developer, Long> {
 
             session.save(developer);
             transaction.commit();
+            session.close();
         } catch (Exception e) {
             transaction.rollback();
             session.close();
             HibernateUtil.closeSessionFactory(sessionFactory);
             e.printStackTrace();
-        } finally {
-            session.close();
         }
     }
 
     @Override
     public Developer getById(int id) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
         Developer developer = null;
@@ -47,22 +46,21 @@ public class HibernateDeveloperDAOImpl implements GenericDAO<Developer, Long> {
             System.out.println(developer);
 
             transaction.commit();
+            session.close();
         } catch (Exception e) {
             transaction.rollback();
             session.close();
             HibernateUtil.closeSessionFactory(sessionFactory);
             e.printStackTrace();
-        } finally {
-            session.close();
         }
         return developer;
     }
 
     @Override
     public void getAll() {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
+
         List<Developer> developers;
 
         try {
@@ -71,26 +69,26 @@ public class HibernateDeveloperDAOImpl implements GenericDAO<Developer, Long> {
             for (Developer developer : developers) {
                 System.out.print(developer);
             }
+            session.close();
         } catch (Exception e) {
             transaction.rollback();
             session.close();
             HibernateUtil.closeSessionFactory(sessionFactory);
             e.printStackTrace();
-        } finally {
-            session.close();
         }
     }
 
     @Override
     public void update(Developer developer) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
+
         Integer developerId = developer.getId();
         String developerName = developer.getName();
         String developerSpecialization = developer.getSpecialization();
         Integer developerExperience = developer.getExperience();
         Integer developerSalary = developer.getSalary();
+
         Set<Skill> skills = developer.getSkills();
         Set<Project> projects = developer.getProjects();
 
@@ -107,19 +105,17 @@ public class HibernateDeveloperDAOImpl implements GenericDAO<Developer, Long> {
 
             session.update(developer);
             transaction.commit();
+            session.close();
         } catch (Exception e) {
             transaction.rollback();
             session.close();
             HibernateUtil.closeSessionFactory(sessionFactory);
             e.printStackTrace();
-        } finally {
-            session.close();
         }
     }
 
     @Override
     public void delete(int id) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
 
@@ -128,13 +124,12 @@ public class HibernateDeveloperDAOImpl implements GenericDAO<Developer, Long> {
             Developer developer = (Developer) session.get(Developer.class, id);
             session.delete(developer);
             transaction.commit();
+            session.close();
         } catch (Exception e) {
             transaction.rollback();
             session.close();
             HibernateUtil.closeSessionFactory(sessionFactory);
             e.printStackTrace();
-        } finally {
-            session.close();
         }
     }
 }

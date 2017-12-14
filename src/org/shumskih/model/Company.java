@@ -1,11 +1,23 @@
 package org.shumskih.model;
 
+import javax.persistence.*;
 import java.util.Set;
 
+@Entity
+@Table(name="companies")
 public class Company {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Integer id;
+
+    @Column(name="name")
     private String name;
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name="companies_projects",
+            joinColumns = {@JoinColumn(name="company_id", nullable = false)},
+            inverseJoinColumns = {@JoinColumn(name="project_id", nullable = false)})
     private Set<Project> projects;
 
     public Company() {

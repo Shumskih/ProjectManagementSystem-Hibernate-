@@ -21,16 +21,13 @@
         <property name="hibernate.connection.password">
             root
         </property>
-        <property name="hbm2ddl.auto">
-            update
-        </property>
 
         <!-- List of XML mapping files -->
-        <mapping resource="org/shumskih/resources/Developer.hbm.xml"/>
-        <mapping resource="org/shumskih/resources/Skill.hbm.xml"/>
-        <mapping resource="org/shumskih/resources/Project.hbm.xml"/>
-        <mapping resource="org/shumskih/resources/Company.hbm.xml"/>
-        <mapping resource="org/shumskih/resources/Customer.hbm.xml"/>
+        <mapping class="org.shumskih.model.Company"/>
+        <mapping class="org.shumskih.model.Customer"/>
+        <mapping class="org.shumskih.model.Developer"/>
+        <mapping class="org.shumskih.model.Project"/>
+        <mapping class="org.shumskih.model.Skill"/>
 
     </session-factory>
 </hibernate-configuration>
